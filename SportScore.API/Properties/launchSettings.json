@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json.schemastore.org/launchsettings.json",
+  "iisSettings": {
+    "windowsAuthentication": false,
+    "anonymousAuthentication": true,
+    "iisExpress": {
+      "applicationUrl": "http://localhost:24941",
+      "sslPort": 44336
+    }
+  },
+  "profiles": {
+    "SportScore.API": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "launchUrl": "swagger",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "ACCESS_URL": "http://127.0.0.1:5500",
+        "API_KEY": "1cf42fae3d8b9472877f37a50b76d0ab8dc4a839883c43024a797139db64f43b"
+      },
+      "applicationUrl": "https://localhost:7111;http://localhost:5111",
+      "dotnetRunMessages": true
+    },
+    "IIS Express": {
+      "commandName": "IISExpress",
+      "launchBrowser": true,
+      "launchUrl": "swagger",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
+    }
+  }
+}
