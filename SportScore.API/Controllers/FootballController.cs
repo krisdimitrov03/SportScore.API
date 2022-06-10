@@ -5,6 +5,7 @@ using Microsoft.Identity.Web.Resource;
 using Newtonsoft.Json;
 using SportScore.API.Constants;
 using SportScore.API.DataTransferModels;
+using SportScore.API.ResponseTypes;
 using SportScore.API.SportsDataOperators.Contracts;
 
 namespace SportScore.API.Controllers
@@ -18,23 +19,21 @@ namespace SportScore.API.Controllers
         }
 
         [HttpGet]
-        public async Task<List<FixtureDTO>> Livescore()
+        public async Task<Response> Livescore()
         {
-            return await service.GetLivescore();
+            return await ValidateAccess(await service.GetLivescore());
         }
 
         [HttpGet]
-        public async Task<List<FixtureDTO>> Fixtures(string from, string to)
+        public async Task<Response> Fixtures(string from, string to)
         {
-            return await service.GetFixturesByDate(from, to);
+            return await ValidateAccess(await service.GetFixturesByDate(from, to));
         }
 
         [HttpGet]
-        public async Task<List<LeaguesByCountryDTO>> Leagues()
+        public async Task<Response> Leagues()
         {
-            var leagues = await service.GetLeagues();
-
-            return leagues;
+            return await ValidateAccess(await service.GetLeagues());
         }
     }
 }

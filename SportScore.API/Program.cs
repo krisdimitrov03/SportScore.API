@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Identity.Web;
 using SportScore.API.SportsDataOperators.Contracts;
@@ -21,7 +20,7 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy(name: "SportScore",builder =>
+    options.AddPolicy("SportScore" ,builder =>
     {
         builder.WithOrigins(Environment.GetEnvironmentVariable("ACCESS_URL"))
         .AllowAnyHeader()

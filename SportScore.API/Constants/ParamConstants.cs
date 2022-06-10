@@ -17,5 +17,7 @@
         public const string From = "from";
         
         public const string To = "to";
+
+        public const string AuthToken = "x-Auth-Token-x";
     }
 }
