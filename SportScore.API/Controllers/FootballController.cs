@@ -35,5 +35,12 @@ namespace SportScore.API.Controllers
         {
             return await ValidateAccess(await service.GetLeagues());
         }
+
+        [HttpGet]
+        [Route("{id}")]
+        public async Task<Response> MatchDetails(string id)
+        {
+            return await ValidateAccess(await service.GetMatchDetails(id));
+        }
     }
 }

@@ -14,7 +14,7 @@
       "launchBrowser": true,
       "launchUrl": "swagger",
       "environmentVariables": {
-        "API_KEY": "1cf42fae3d8b9472877f37a50b76d0ab8dc4a839883c43024a797139db64f43b",
+        "API_KEY": "cf5276dbf901fbbc606899b7dc52341bd04f00c3f5ec4fb68385c78ee61d832f",
         "ASPNETCORE_ENVIRONMENT": "Development",
         "ACCESS_URL": "http://127.0.0.1:5500",
         "AUTH_TOKEN": "9dc97af7-5b7e-466b-9fc1-1ca2873bc4"

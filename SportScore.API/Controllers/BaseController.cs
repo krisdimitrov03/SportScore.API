@@ -18,12 +18,12 @@ namespace SportScore.API.Controllers
             if (Request.Headers.ContainsKey(ParamConstants.AuthToken))
             {
                 if (Request.Headers[ParamConstants.AuthToken] == Environment.GetEnvironmentVariable("AUTH_TOKEN"))
-                {
                     return new SuccessResponse(result);
-                }
+                else
+                    return new AccessDeniedResponse("ACCESS DENIED: Not valid authentication token.");
             }
 
             return new AccessDeniedResponse();
-        } 
+        }
     }
 }

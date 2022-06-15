@@ -14,59 +14,6 @@ namespace SportScore.API.SportsDataOperators.Services
         {
             sdService = _sdService;
         }
-
-        public async Task<List<FixtureDTO>> GetFixturesByDate(string from, string to)
-        {
-            return await Fixtures(from, to);
-        }
-
-        public async Task<List<FixtureDTO>> GetLivescore()
-        {
-            return await Fixtures(met: MetConstants.Livescore);
-        }
-
-        public async Task<List<LeaguesByCountryDTO>> GetLeagues()
-        {
-            string rawData = await sdService.Get(UrlConstants.FootballUrl,
-                new Dictionary<string, string>
-                {
-                    { ParamConstants.ApiKey, UrlConstants.APIKey },
-                    { ParamConstants.Met, MetConstants.Leagues }
-                });
-
-            var data = JsonConvert.DeserializeObject<LeaguesRawDTO>(rawData);
-
-            List<LeaguesByCountryDTO> result = new List<LeaguesByCountryDTO>();
-
-            foreach (var league in data.Result)
-            {
-                var decisiveLeague = result.FirstOrDefault(e => e.Country == (string)league["country_name"]);
-
-                LeagueDTO leagueObject = new LeagueDTO
-                {
-                    LeagueId = (string)league["league_key"],
-                    Name = (string)league["league_name"]
-                };
-
-                if (decisiveLeague != null)
-                {
-                    decisiveLeague.Leagues.Add(leagueObject);
-                }
-                else
-                {
-                    result.Add(new LeaguesByCountryDTO
-                    {
-                        Country = (string)league["country_name"],
-                        Leagues = new List<LeagueDTO> { leagueObject }
-                    });
-                }
-            }
-
-            return result
-                .OrderBy(l => l.Country)
-                .ToList();
-        }
-
         private async Task<List<FixtureDTO>> Fixtures(string? from = null, string? to = null, string? met = null)
         {
             var parameters = new Dictionary<string, string>
@@ -122,6 +69,74 @@ namespace SportScore.API.SportsDataOperators.Services
             }
 
             return result;
+        }
+
+        public async Task<List<FixtureDTO>> GetFixturesByDate(string from, string to)
+        {
+            return await Fixtures(from, to);
+        }
+
+        public async Task<List<FixtureDTO>> GetLivescore()
+        {
+            return await Fixtures(met: MetConstants.Livescore);
+        }
+
+        public async Task<List<LeaguesByCountryDTO>> GetLeagues()
+        {
+            string rawData = await sdService.Get(UrlConstants.FootballUrl,
+                new Dictionary<string, string>
+                {
+                    { ParamConstants.ApiKey, UrlConstants.APIKey },
+                    { ParamConstants.Met, MetConstants.Leagues }
+                });
+
+            var data = JsonConvert.DeserializeObject<LeaguesRawDTO>(rawData);
+
+            List<LeaguesByCountryDTO> result = new List<LeaguesByCountryDTO>();
+
+            foreach (var league in data.Result)
+            {
+                var decisiveLeague = result.FirstOrDefault(e => e.Country == (string)league["country_name"]);
+
+                LeagueDTO leagueObject = new LeagueDTO
+                {
+                    LeagueId = (string)league["league_key"],
+                    Name = (string)league["league_name"]
+                };
+
+                if (decisiveLeague != null)
+                {
+                    decisiveLeague.Leagues.Add(leagueObject);
+                }
+                else
+                {
+                    result.Add(new LeaguesByCountryDTO
+                    {
+                        CountryLogo = (string)league["country_logo"],
+                        Country = (string)league["country_name"],
+                        Leagues = new List<LeagueDTO> { leagueObject }
+                    });
+                }
+            }
+
+            return result
+                .OrderBy(l => l.Country)
+                .ToList();
+        }
+
+
+        public async Task<MatchDetailsDTO> GetMatchDetails(string id)
+        {
+            return new MatchDetailsDTO()
+            {
+                HomeTeam = "Barcelona",
+                AwayTeam = "Alaves",
+                Time = "42",
+                Country = "Spain",
+                League = "LaLiga Santander",
+                Result = "3-1", 
+                StartDateAndTime = "22.01.2022, 19:00"
+            };
         }
     }
 }
