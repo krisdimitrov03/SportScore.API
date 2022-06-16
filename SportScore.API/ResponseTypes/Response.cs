@@ -1,6 +1,6 @@
 ﻿namespace SportScore.API.ResponseTypes
 {
-    public class Response
+    public abstract class Response
     {
         public int Status { get; set; }
 

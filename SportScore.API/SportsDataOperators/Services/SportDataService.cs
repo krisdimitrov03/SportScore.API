@@ -1,4 +1,5 @@
-﻿using SportScore.API.SportsDataOperators.Contracts;
+﻿using SportScore.API.Constants;
+using SportScore.API.SportsDataOperators.Contracts;
 
 namespace SportScore.API.SportsDataOperators.Services
 {
@@ -14,6 +15,8 @@ namespace SportScore.API.SportsDataOperators.Services
             if(prms != null)
             {
                 path += "?";
+
+                prms.Add(ParamConstants.ApiKey, UrlConstants.APIKey);
 
                 foreach (var param in prms)
                 {

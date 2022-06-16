@@ -4,6 +4,13 @@ namespace SportScore.API.DataTransferModels
 {
     public class MatchDetailsDTO
     {
+        public MatchDetailsDTO()
+        {
+            Details = new List<MiniEventDTO>();
+            Statistics = new List<StatDTO>();
+            Lineups = new List<LineupDTO>();
+        }
+
         public string Country { get; set; }
 
         public string League { get; set; }

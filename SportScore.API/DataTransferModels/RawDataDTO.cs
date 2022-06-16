@@ -1,6 +1,6 @@
 ﻿namespace SportScore.API.DataTransferModels
 {
-    public class FixtureRawDTO
+    public class RawDataDTO
     {
         public List<Dictionary<string, object>> Result { get; set; }
     }
