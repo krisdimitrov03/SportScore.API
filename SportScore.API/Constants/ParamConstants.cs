@@ -14,6 +14,8 @@
 
         public const string TeamId = "teamId";
 
+        public const string PlayerId = "playerId";
+
         public const string From = "from";
         
         public const string To = "to";

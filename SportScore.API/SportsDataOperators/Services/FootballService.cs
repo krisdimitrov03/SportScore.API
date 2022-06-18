@@ -85,9 +85,9 @@ namespace SportScore.API.SportsDataOperators.Services
 
             string formattedDate = $"{dateParts[2]}.{dateParts[1]}.{dateParts[0]}";
 
-            var details = GetDetails(data);
-            var stats = GetStats(data);
-            var lineups = GetLineups(data);
+            var details = await GetDetails(data);
+            var stats = await GetStats(data);
+            var lineups = await GetLineups(data);
 
             return new MatchDetailsDTO()
             {
@@ -109,29 +109,95 @@ namespace SportScore.API.SportsDataOperators.Services
 
         public async Task<LeagueDetailsDTO> GetLeagueDetails(string id)
         {
+            var leagueRaw = await sdService.Get(UrlConstants.FootballUrl,
+                new Dictionary<string, string>()
+                {
+                    { ParamConstants.Met, MetConstants.Leagues }
+                });
+
+            var leagues = JsonConvert.DeserializeObject<RawDataDTO>(leagueRaw).Result;
+
+            var leagueData = leagues.FirstOrDefault(e => (string)e["league_key"] == id);
+
+            string name = (string)leagueData["league_name"];
+            string image = (string)leagueData["league_logo"];
+            string countryId = (string)leagueData["country_key"];
+            string countryName = (string)leagueData["country_name"];
+
+            var standingsRaw = await sdService.Get(UrlConstants.FootballUrl,
+                new Dictionary<string, string>()
+                {
+                    { ParamConstants.Met, MetConstants.Standings },
+                    { ParamConstants.LeagueId, id }
+                });
+
+            var standingsData = JsonConvert.DeserializeObject<AllStandingsRawDTO>(standingsRaw);
+
+            List<TeamInStandingDTO> standings = await GetStandings(standingsData.Result.Total);
+
+            var topscorersRaw = await sdService.Get(UrlConstants.FootballUrl,
+                new Dictionary<string, string>()
+                {
+                    { ParamConstants.Met, MetConstants.Topscorers },
+                    { ParamConstants.LeagueId, id }
+                });
+
+            var topscorersData = JsonConvert.DeserializeObject<RawDataDTO>(topscorersRaw);
+
+            List<PlayerInTopScorersDTO> topscorers = await GetTopscorers(topscorersData.Result);
+
             return new LeagueDetailsDTO()
             {
-                LeagueId = "sd1ds2dd2",
-                LeagueName = "Liga 2",
-                LeagueImage = "imageUrl",
-                CountryId = "ad12EESD2",
-                CountryName = "Angola"
+                LeagueId = id,
+                LeagueName = name,
+                LeagueImage = image,
+                CountryId = countryId,
+                CountryName = countryName,
+                Standings = standings,
+                TopScorers = topscorers
             };
         }
 
         //-- Help methods --//
 
-        private List<LineupDTO> GetLineups(Dictionary<string, object> data)
+        private async Task<List<TeamInStandingDTO>> GetStandings(List<Dictionary<string, string>> data)
+        {
+            return data.Select(t => new TeamInStandingDTO()
+            {
+                Number = int.Parse(t["standing_place"]),
+                Name = t["standing_team"],
+                GamesPlayed = t["standing_P"] == null ? 0 : int.Parse(t["standing_P"]),
+                Wins = t["standing_W"] == null ? 0 : int.Parse(t["standing_W"]),
+                Draws = t["standing_D"] == null ? 0 : int.Parse(t["standing_D"]),
+                Losts = t["standing_L"] == null ? 0 : int.Parse(t["standing_L"]),
+                Points = t["standing_PTS"] == null ? 0 : int.Parse(t["standing_PTS"])
+            }).ToList();
+        }
+
+        private async Task<List<PlayerInTopScorersDTO>> GetTopscorers(List<Dictionary<string, object>> data)
+        {
+            return data.Select(p => new PlayerInTopScorersDTO()
+            {
+                Number = int.Parse((string)p["player_place"]),
+                Name = (string)p["player_name"],
+                Team = (string)p["team_name"],
+                Goals = p["goals"] == null ? 0 : int.Parse((string)p["goals"]),
+                Assists = p["assists"] == null ? 0 : int.Parse((string)p["assists"]),
+                PenaltyGoals = p["penalty_goals"] == null ? 0 : int.Parse((string)p["penalty_goals"])
+            }).ToList();
+        }
+
+        private async Task<List<LineupDTO>> GetLineups(Dictionary<string, object> data)
         {
             var lineupsData = JsonConvert.DeserializeObject<LineupsRawDTO>(data["lineups"].ToString());
 
-            var homeLineup = GetSingleLineup(lineupsData.Home_Team);
-            var awayLineup = GetSingleLineup(lineupsData.Away_Team);
+            var homeLineup = await GetSingleLineup(lineupsData.Home_Team);
+            var awayLineup = await GetSingleLineup(lineupsData.Away_Team);
 
             return new List<LineupDTO>() { homeLineup, awayLineup };
         }
 
-        private LineupDTO GetSingleLineup(Dictionary<string, List<Dictionary<string, string>>> lineup)
+        private async Task<LineupDTO> GetSingleLineup(Dictionary<string, List<Dictionary<string, string>>> lineup)
         {
             LineupDTO result = new LineupDTO();
 
@@ -173,12 +239,12 @@ namespace SportScore.API.SportsDataOperators.Services
             return result;
         }
 
-        private List<StatDTO> GetStats(Dictionary<string, object> data)
+        private async Task<List<StatDTO>> GetStats(Dictionary<string, object> data)
         {
             return JsonConvert.DeserializeObject<List<StatDTO>>(data["statistics"].ToString());
         }
 
-        private List<MiniEventDTO> GetDetails(Dictionary<string, object> data)
+        private async Task<List<MiniEventDTO>> GetDetails(Dictionary<string, object> data)
         {
             var goalscorersData = JsonConvert.DeserializeObject<Dictionary<string, string>[]>(data["goalscorers"].ToString());
             var cardsData = JsonConvert.DeserializeObject<Dictionary<string, string>[]>(data["cards"].ToString());
