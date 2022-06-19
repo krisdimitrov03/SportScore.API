@@ -158,7 +158,48 @@ namespace SportScore.API.SportsDataOperators.Services
             };
         }
 
+        public async Task<TeamDetailsDTO> GetTeamDetails(string id)
+        {
+            string rawData = await sdService.Get(UrlConstants.FootballUrl,
+                new Dictionary<string, string>()
+                {
+                    { ParamConstants.Met, MetConstants.Teams },
+                    { ParamConstants.TeamId, id }
+                });
+
+            var teamDetails = JsonConvert.DeserializeObject<RawDataDTO>(rawData).Result[0];
+
+            var players = await GetPlayers(JsonConvert.DeserializeObject<List<Dictionary<string, object>>>(teamDetails["players"].ToString()));
+
+            var date = DateTime.Now;
+
+            var matches = await Fixtures(from: $"{date.Year}-{date.Month-3}-01", to: $"{date.Year}-{date.Month-3}-{DateTime.DaysInMonth(date.Year, date.Month)}", teamId: id);
+
+            var coaches = JsonConvert.DeserializeObject<List<Dictionary<string, string>>>(teamDetails["coaches"].ToString())
+                .Select(c => c["coach_name"])
+                .ToList();
+
+            return new TeamDetailsDTO()
+            {
+                Name = (string)teamDetails["team_name"],
+                Image = (string)teamDetails["team_logo"],
+                Matches = matches,
+                Players = players,
+                Coaches = coaches
+            };
+        }
+
         //-- Help methods --//
+
+        private async Task<List<PlayerDTO>> GetPlayers(List<Dictionary<string, object>> data)
+        {
+            return data.Select(p => new PlayerDTO()
+            {
+                Name = (string)p["player_name"],
+                Image = (string)p["player_image"],
+                Position = (string)p["player_type"]
+            }).ToList();
+        }
 
         private async Task<List<TeamInStandingDTO>> GetStandings(List<Dictionary<string, string>> data)
         {
@@ -203,7 +244,7 @@ namespace SportScore.API.SportsDataOperators.Services
 
             foreach (var player in lineup["starting_lineups"])
             {
-                result.StartingEleven.Add(new PlayerDTO()
+                result.StartingEleven.Add(new PlayerInLineupDTO()
                 {
                     Name = player["player"],
                     Number = player["player_number"],
@@ -213,7 +254,7 @@ namespace SportScore.API.SportsDataOperators.Services
 
             foreach (var player in lineup["substitutes"])
             {
-                result.Substitutes.Add(new PlayerDTO()
+                result.Substitutes.Add(new PlayerInLineupDTO()
                 {
                     Name = player["player"],
                     Number = player["player_number"],
@@ -228,7 +269,7 @@ namespace SportScore.API.SportsDataOperators.Services
 
             foreach (var player in lineup["missing_players"])
             {
-                result.MissingPlayers.Add(new PlayerDTO()
+                result.MissingPlayers.Add(new PlayerInLineupDTO()
                 {
                     Name = player["player"],
                     Number = player["player_number"],
@@ -274,7 +315,7 @@ namespace SportScore.API.SportsDataOperators.Services
                 .ToList();
         }
 
-        private async Task<List<FixtureDTO>> Fixtures(string? from = null, string? to = null, string? met = null)
+        private async Task<List<FixtureDTO>> Fixtures(string? from = null, string? to = null, string? met = null, string? teamId = null)
         {
             var parameters = new Dictionary<string, string>
                 {
@@ -287,6 +328,8 @@ namespace SportScore.API.SportsDataOperators.Services
 
             if (to != null) parameters.Add(ParamConstants.To, to);
 
+            if (teamId != null) parameters.Add(ParamConstants.TeamId, teamId);
+
 
             string rawData = await sdService.Get(UrlConstants.FootballUrl, parameters);
 
@@ -294,36 +337,39 @@ namespace SportScore.API.SportsDataOperators.Services
 
             List<FixtureDTO> result = new List<FixtureDTO>();
 
-            foreach (var match in data.Result)
+            if(data.Result != null)
             {
-                var decisiveMatch = result.FirstOrDefault(e => e.League == (string)match["league_name"]);
+                foreach (var match in data.Result)
+                {
+                    var decisiveMatch = result.FirstOrDefault(e => e.League == (string)match["league_name"]);
 
-                MatchDTO matchObject = new MatchDTO()
-                {
-                    MatchId = (string)match["event_key"],
-                    StartTime = (string)match["event_time"],
-                    Time = (string)match["event_status"],
-                    HomeTeam = (string)match["event_home_team"],
-                    HomeGoals = ((string)match["event_final_result"]) != ""
-                        ? ((string)match["event_final_result"]).Split(" - ")[0]
-                        : "",
-                    AwayTeam = (string)match["event_away_team"],
-                    AwayGoals = ((string)match["event_final_result"]) != ""
-                        ? ((string)match["event_final_result"]).Split(" - ")[0]
-                        : ""
-                };
-
-                if (decisiveMatch != null)
-                {
-                    decisiveMatch.Matches.Add(matchObject);
-                }
-                else
-                {
-                    result.Add(new FixtureDTO()
+                    MatchDTO matchObject = new MatchDTO()
                     {
-                        League = (string)match["league_name"],
-                        Matches = new List<MatchDTO> { matchObject }
-                    });
+                        MatchId = (string)match["event_key"],
+                        StartTime = (string)match["event_time"],
+                        Time = (string)match["event_status"],
+                        HomeTeam = (string)match["event_home_team"],
+                        HomeGoals = ((string)match["event_final_result"]) != ""
+                            ? ((string)match["event_final_result"]).Split(" - ")[0]
+                            : "",
+                        AwayTeam = (string)match["event_away_team"],
+                        AwayGoals = ((string)match["event_final_result"]) != ""
+                            ? ((string)match["event_final_result"]).Split(" - ")[0]
+                            : ""
+                    };
+
+                    if (decisiveMatch != null)
+                    {
+                        decisiveMatch.Matches.Add(matchObject);
+                    }
+                    else
+                    {
+                        result.Add(new FixtureDTO()
+                        {
+                            League = (string)match["league_name"],
+                            Matches = new List<MatchDTO> { matchObject }
+                        });
+                    }
                 }
             }
 

@@ -6,19 +6,19 @@ namespace SportScore.API.DataTransferModels
     {
         public LineupDTO()
         {
-            StartingEleven = new List<PlayerDTO>();
-            Substitutes = new List<PlayerDTO>();
+            StartingEleven = new List<PlayerInLineupDTO>();
+            Substitutes = new List<PlayerInLineupDTO>();
             Coaches = new List<string>();
-            MissingPlayers = new List<PlayerDTO>();
+            MissingPlayers = new List<PlayerInLineupDTO>();
         }
 
-        public List<PlayerDTO> StartingEleven { get; set; }
+        public List<PlayerInLineupDTO> StartingEleven { get; set; }
 
-        public List<PlayerDTO> Substitutes { get; set; }
+        public List<PlayerInLineupDTO> Substitutes { get; set; }
 
         public List<string> Coaches { get; set; }
 
-        public List<PlayerDTO> MissingPlayers { get; set; }
+        public List<PlayerInLineupDTO> MissingPlayers { get; set; }
     }
 }
 
