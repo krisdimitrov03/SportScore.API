@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using SportScore.Infrastructure.Data.Models;
+using SportScore.Infrastructure.Data;
 
-namespace SportScore.Infrastructure.Data;
+namespace SportScore.Infrastructure;
 
 public class SportScoreContext : IdentityDbContext<ApplicationUser>
 {
@@ -10,7 +10,9 @@ public class SportScoreContext : IdentityDbContext<ApplicationUser>
         : base(options)
     {
     }
-    
+
+    public DbSet<UserFavouriteMatch> UsersFavouriteMatches { get; set; }
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);

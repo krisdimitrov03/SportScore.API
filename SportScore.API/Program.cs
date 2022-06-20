@@ -5,16 +5,17 @@ using SportScore.API.SportsDataOperators.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using SportScore.Infrastructure.Data;
-using SportScore.Infrastructure.Data.Models;
+using SportScore.Infrastructure;
+using SportScore.Infrastructure.Seeders;
 
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("SportScoreContextConnection") ?? throw new InvalidOperationException("Connection string 'SportScoreContextConnection' not found.");
 
 builder.Services.AddDbContext<SportScoreContext>(options =>
-    options.UseSqlServer(connectionString));;
+    options.UseSqlServer(connectionString));
 
 builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
-    .AddEntityFrameworkStores<SportScoreContext>();;
+    .AddEntityFrameworkStores<SportScoreContext>();
 
 // Add services to the container.
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
