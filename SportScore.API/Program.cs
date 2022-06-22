@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using SportScore.Infrastructure.Data;
 using SportScore.Infrastructure;
 using SportScore.Infrastructure.Seeders;
+using SportScore.Infrastructure.Data.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("SportScoreContextConnection") ?? throw new InvalidOperationException("Connection string 'SportScoreContextConnection' not found.");
@@ -17,13 +18,20 @@ builder.Services.AddDbContext<SportScoreContext>(options =>
 builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddEntityFrameworkStores<SportScoreContext>();
 
+builder.Services.Configure<IdentityOptions>(options =>
+{
+    options.SignIn.RequireConfirmedAccount = false;
+});
+
 // Add services to the container.
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddMicrosoftIdentityWebApi(builder.Configuration.GetSection("AzureAd"));
 
 builder.Services
+    .AddScoped<IApplicationDbRepository, ApplicationDbRepository>()
     .AddScoped<ISportDataService, SportDataService>()
-    .AddScoped<IFootballService, FootballService>();
+    .AddScoped<IFootballService, FootballService>()
+    .AddScoped<IUserService, UserService>();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

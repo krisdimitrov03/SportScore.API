@@ -1,26 +1,35 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 using SportScore.API.ResponseTypes;
-using System.IO;
+using SportScore.API.SportsDataOperators.Contracts;
 
 namespace SportScore.API.Controllers
 {
     public class UserController : BaseController
     {
+        private readonly IUserService service;
+
+        public UserController(IUserService _service)
+        {
+            service = _service;
+        }
+
+        [HttpPost]
         public async Task<Response> Login()
         {
-            string body = "";
+            return await ValidateAccess(await service.LogUserIn(Request.Body));
+        }
 
-            using (var reader = new StreamReader(Request.Body))
-            {
-                body = await reader.ReadToEndAsync();
-            }
+        [HttpPost]
+        public async Task<Response> Register()
+        {
+            return await ValidateAccess(await service.RegisterUser(Request.Body));
+        }
 
-            Dictionary<string, string> data = JsonConvert.DeserializeObject<Dictionary<string, string>>(body);
-
-
-
-            return new SuccessResponse(new Object());
+        [HttpGet]
+        [Route("{id}")]
+        public async Task<Response> Info(string id)
+        {
+            return await ValidateAccess(await service.GetUserDetails(id));
         }
     }
 }
