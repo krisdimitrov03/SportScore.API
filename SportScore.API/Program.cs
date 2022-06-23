@@ -42,7 +42,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("SportScore" ,builder =>
     {
-        builder.WithOrigins(Environment.GetEnvironmentVariable("ACCESS_URL-asdasdasd"))
+        builder.WithOrigins(Environment.GetEnvironmentVariable("ACCESS_URL"))
         .AllowAnyHeader()
         .AllowAnyMethod();
     });
