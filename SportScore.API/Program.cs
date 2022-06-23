@@ -40,7 +40,7 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("SportScore" ,builder =>
+    options.AddPolicy("SportScore", builder =>
     {
         builder.WithOrigins(Environment.GetEnvironmentVariable("ACCESS_URL-asdasdasd"))
         .AllowAnyHeader()
