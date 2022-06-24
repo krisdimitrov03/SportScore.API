@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
 using SportScore.Infrastructure.Data;
 
 namespace SportScore.Infrastructure.Seeders
@@ -16,11 +17,14 @@ namespace SportScore.Infrastructure.Seeders
 
                 if (!context.Users.Any())
                 {
-                    context.Users.Add(new ApplicationUser()
-                    {
-                        //TODO
-                    });
+                    var users = new List<ApplicationUser>();
 
+                    using (var reader = new StreamReader("../SportScore.Infrastructure/Seeders/Data/users.json"))
+                    {
+                        users = JsonConvert.DeserializeObject<List<ApplicationUser>>(reader.ReadToEnd());
+                    }
+
+                    context.Users.AddRange(users);
                     context.SaveChanges();
                 }
             }
