@@ -69,6 +69,10 @@ namespace SportScore.API.SportsDataOperators.Services
 
             return new UserDetailsDTO()
             {
+                Id = user.Id,
+                Email = user.Email,
+                Username = user.UserName,
+                ProfilePicture = ""
             };
         }
 
