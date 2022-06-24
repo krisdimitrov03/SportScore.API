@@ -16,13 +16,13 @@ namespace SportScore.API.Controllers
         [HttpPost]
         public async Task<Response> Login()
         {
-            return await ValidateAccess(await service.LogUserIn(Request.Body));
+            return await ValidateAccess(await service.LogUserIn(Request.Body), "login");
         }
 
         [HttpPost]
         public async Task<Response> Register()
         {
-            return await ValidateAccess(await service.RegisterUser(Request.Body));
+            return await ValidateAccess(await service.RegisterUser(Request.Body), "register");
         }
 
         [HttpGet]
