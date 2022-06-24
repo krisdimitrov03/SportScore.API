@@ -72,7 +72,7 @@ namespace SportScore.API.SportsDataOperators.Services
                 Id = user.Id,
                 Email = user.Email,
                 Username = user.UserName,
-                ProfilePicture = ""
+                ProfilePicture = "default-image-url.jpg"
             };
         }
 
