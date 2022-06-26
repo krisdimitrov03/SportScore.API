@@ -44,6 +44,9 @@ namespace SportScore.API.Controllers
                             case "register":
                                 return new IncorrectRegisterResponse();
                                 break;
+                            default:
+                                return new IncorrectInputResponse();
+                                break;
                         }
                     }
 

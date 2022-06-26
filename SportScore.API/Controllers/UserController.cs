@@ -29,7 +29,7 @@ namespace SportScore.API.Controllers
         [Route("{id}")]
         public async Task<Response> Info(string id)
         {
-            return await ValidateAccess(await service.GetUserDetails(id));
+            return await ValidateAccess(await service.GetUserDetails(id), "details");
         }
     }
 }

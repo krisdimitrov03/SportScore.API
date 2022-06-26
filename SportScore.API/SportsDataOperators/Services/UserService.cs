@@ -67,6 +67,8 @@ namespace SportScore.API.SportsDataOperators.Services
         {
             var user = await userManager.FindByIdAsync(id);
 
+            if(user == null) return null;
+
             return new UserDetailsDTO()
             {
                 Id = user.Id,
