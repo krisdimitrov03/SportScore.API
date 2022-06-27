@@ -15,5 +15,7 @@ namespace SportScore.API.SportsDataOperators.Contracts
         Task<LeagueDetailsDTO> GetLeagueDetails(string id);
 
         Task<TeamDetailsDTO> GetTeamDetails(string id);
+
+        Task<MatchDTO> GetMatchById(string id);
     }
 }

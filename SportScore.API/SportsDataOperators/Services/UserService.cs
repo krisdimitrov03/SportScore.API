@@ -16,6 +16,7 @@ namespace SportScore.API.SportsDataOperators.Services
         private readonly IUserStore<ApplicationUser> userStore;
         private readonly IUserEmailStore<ApplicationUser> emailStore;
         private readonly IApplicationDbRepository repo;
+        private BodyParser parser;
 
         public UserService(
             SignInManager<ApplicationUser> _signInManager,
@@ -28,11 +29,12 @@ namespace SportScore.API.SportsDataOperators.Services
             userStore = _userStore;
             emailStore = GetEmailStore();
             repo = _repo;
+            parser = new BodyParser();
         }
 
         public async Task<(AuthReturnDTO?, string)> LogUserIn(Stream body)
         {
-            var user = await FormatInfo<LoginDTO>(body);
+            var user = await parser.Parse<LoginDTO>(body);
 
             if (user == null) return (null, "Data formatted incorrectly.");
 
@@ -58,7 +60,7 @@ namespace SportScore.API.SportsDataOperators.Services
 
         public async Task<(AuthReturnDTO?, string)> RegisterUser(Stream body)
         {
-            var data = await FormatInfo<RegisterDTO>(body);
+            var data = await parser.Parse<RegisterDTO>(body);
 
             if (data == null) return (null, "Data formatted incorrectly.");
 
@@ -129,25 +131,7 @@ namespace SportScore.API.SportsDataOperators.Services
 
         //-- Help Methods --//
 
-        private async Task<T?> FormatInfo<T>(Stream body)
-            where T : class
-        {
-            string bodyAsString = string.Empty;
-
-            using (var reader = new StreamReader(body))
-            {
-                bodyAsString = await reader.ReadToEndAsync();
-            }
-
-            try
-            {
-                return JsonConvert.DeserializeObject<T>(bodyAsString);
-            }
-            catch (Exception)
-            {
-                return null;
-            }
-        }
+        
 
         private IUserEmailStore<ApplicationUser> GetEmailStore()
         {

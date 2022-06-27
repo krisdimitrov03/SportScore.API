@@ -212,6 +212,43 @@ namespace SportScore.API.SportsDataOperators.Services
             }
         }
 
+        public async Task<MatchDTO> GetMatchById(string id)
+        {
+            var parameters = new Dictionary<string, string>
+                {
+                    { ParamConstants.Met, MetConstants.Fixtures },
+                    { ParamConstants.MatchId, id }
+                };
+
+            string rawData = await sdService.Get(UrlConstants.FootballUrl, parameters);
+
+            try
+            {
+                var data = JsonConvert.DeserializeObject<RawDataDTO>(rawData);
+
+                var match = data.Result[0];
+
+                return new MatchDTO()
+                {
+                    MatchId = (string)match["event_key"],
+                    StartTime = (string)match["event_time"],
+                    Time = (string)match["event_status"],
+                    HomeTeam = (string)match["event_home_team"],
+                    HomeGoals = ((string)match["event_final_result"]) != ""
+                                ? ((string)match["event_final_result"]).Split(" - ")[0]
+                                : "",
+                    AwayTeam = (string)match["event_away_team"],
+                    AwayGoals = ((string)match["event_final_result"]) != ""
+                                ? ((string)match["event_final_result"]).Split(" - ")[0]
+                                : ""
+                };
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
         //-- Help methods --//
 
         private async Task<List<PlayerDTO>> GetPlayers(List<Dictionary<string, object>> data)
@@ -338,7 +375,7 @@ namespace SportScore.API.SportsDataOperators.Services
                 .ToList();
         }
 
-        private async Task<List<FixtureDTO>> Fixtures(string? from = null, string? to = null, string? met = null, string? teamId = null)
+        private async Task<List<FixtureDTO>> Fixtures(string? from = null, string? to = null, string? met = null, string? teamId = null, string? matchId = null)
         {
             var parameters = new Dictionary<string, string>
                 {
@@ -352,6 +389,8 @@ namespace SportScore.API.SportsDataOperators.Services
             if (to != null) parameters.Add(ParamConstants.To, to);
 
             if (teamId != null) parameters.Add(ParamConstants.TeamId, teamId);
+
+            if (matchId != null) parameters.Add(ParamConstants.MatchId, matchId);
 
 
             string rawData = await sdService.Get(UrlConstants.FootballUrl, parameters);
