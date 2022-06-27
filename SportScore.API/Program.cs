@@ -31,7 +31,8 @@ builder.Services
     .AddScoped<IApplicationDbRepository, ApplicationDbRepository>()
     .AddScoped<ISportDataService, SportDataService>()
     .AddScoped<IFootballService, FootballService>()
-    .AddScoped<IUserService, UserService>();
+    .AddScoped<IUserService, UserService>()
+    .AddScoped<IFavoritesService, FavoritesService>();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -42,7 +43,8 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("SportScore", builder =>
     {
-        builder.WithOrigins(Environment.GetEnvironmentVariable("ACCESS_URL"))
+        //builder.WithOrigins(Environment.GetEnvironmentVariable("ACCESS_URL"))
+        builder.WithOrigins("http://localhost:3000")
         .AllowAnyHeader()
         .AllowAnyMethod();
     });
