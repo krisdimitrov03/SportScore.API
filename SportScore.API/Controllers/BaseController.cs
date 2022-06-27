@@ -18,7 +18,8 @@ namespace SportScore.API.Controllers
         {
             if (Request.Headers.ContainsKey(ParamConstants.AuthToken))
             {
-                if (Request.Headers[ParamConstants.AuthToken] == Environment.GetEnvironmentVariable("AUTH_TOKEN"))
+                //if (Request.Headers[ParamConstants.AuthToken] == Environment.GetEnvironmentVariable("AUTH_TOKEN"))
+                if (Request.Headers[ParamConstants.AuthToken] == "9dc97af7-5b7e-466b-9fc1-1ca2873bc4")
                     return new SuccessResponse(result);
                 else
                     return new AccessDeniedResponse("ACCESS DENIED: Not valid authentication token.");
@@ -27,30 +28,37 @@ namespace SportScore.API.Controllers
             return new AccessDeniedResponse();
         }
 
-        protected async Task<Response> ValidateAccess<T>(T result, string authType)
+        protected async Task<Response> ValidateAccess<T>((T, string) result, string authType)
             where T : class
         {
+            var (user, message) = result;
+
             if (Request.Headers.ContainsKey(ParamConstants.AuthToken))
             {
-                if (Request.Headers[ParamConstants.AuthToken] == Environment.GetEnvironmentVariable("AUTH_TOKEN"))
+                //if (Request.Headers[ParamConstants.AuthToken] == Environment.GetEnvironmentVariable("AUTH_TOKEN"))
+                if (Request.Headers[ParamConstants.AuthToken] == "9dc97af7-5b7e-466b-9fc1-1ca2873bc4")
                 {
-                    if(result == null)
+                    if (user == null)
                     {
+                        Response response;
+
                         switch (authType)
                         {
                             case "login":
-                                return new IncorrectLoginResponse();
+                                response = new IncorrectLoginResponse(message);
                                 break;
                             case "register":
-                                return new IncorrectRegisterResponse();
+                                response = new IncorrectRegisterResponse(message);
                                 break;
                             default:
-                                return new IncorrectInputResponse();
+                                response = new IncorrectInputResponse();
                                 break;
                         }
+
+                        return response;
                     }
 
-                    return new SuccessResponse(result);
+                    return new SuccessResponse(user);
                 }
 
                 return new AccessDeniedResponse("ACCESS DENIED: Not valid authentication token.");

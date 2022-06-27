@@ -2,8 +2,8 @@
 {
     public class IncorrectRegisterResponse : IncorrectAuthResponse
     {
-        public IncorrectRegisterResponse() 
-            : base("register")
+        public IncorrectRegisterResponse(string errors)
+            : base("register", errors)
         {
         }
     }

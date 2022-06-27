@@ -2,8 +2,8 @@
 {
     public class IncorrectLoginResponse : IncorrectAuthResponse
     {
-        public IncorrectLoginResponse() 
-            : base("log in")
+        public IncorrectLoginResponse(string errors) 
+            : base("log in", errors)
         {
         }
     }

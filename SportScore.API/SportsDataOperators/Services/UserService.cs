@@ -5,6 +5,8 @@ using SportScore.API.SportsDataOperators.Contracts;
 using SportScore.Infrastructure.Data;
 using SportScore.Infrastructure.Data.Repositories;
 
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
+
 namespace SportScore.API.SportsDataOperators.Services
 {
     public class UserService : IUserService
@@ -28,7 +30,7 @@ namespace SportScore.API.SportsDataOperators.Services
             repo = _repo;
         }
 
-        public async Task<AuthReturnDTO?> LogUserIn(Stream body)
+        public async Task<(AuthReturnDTO?, string)> LogUserIn(Stream body)
         {
             var user = await FormatInfo<LoginDTO>(body);
 
@@ -36,19 +38,19 @@ namespace SportScore.API.SportsDataOperators.Services
 
             if (result.Succeeded)
             {
-                return new AuthReturnDTO()
+                return (new AuthReturnDTO()
                 {
                     Id = repo
                     .All<ApplicationUser>()
                     .FirstOrDefault(u => u.UserName == user.Email).Id,
 
                     Username = user.Email
-                };
+                }, "");
             }
-            else return null;
+            else return (null, "Wrong username or password.");
         }
 
-        public async Task<AuthReturnDTO?> RegisterUser(Stream body)
+        public async Task<(AuthReturnDTO?, string)> RegisterUser(Stream body)
         {
             var data = await FormatInfo<RegisterDTO>(body);
 
@@ -59,8 +61,10 @@ namespace SportScore.API.SportsDataOperators.Services
 
             var result = await userManager.CreateAsync(user, data.Password);
 
-            if (result.Succeeded) return new AuthReturnDTO() { Id = user.Id, Username = user.UserName };
-            else return null;
+            var errors = result.Errors.Select(e => e.Description).ToList();
+
+            if (result.Succeeded) return (new AuthReturnDTO() { Id = user.Id, Username = user.UserName }, "");
+            else return (null, string.Join(";", errors));
         }
 
         public async Task<UserDetailsDTO> GetUserDetails(string id)
@@ -102,3 +106,5 @@ namespace SportScore.API.SportsDataOperators.Services
         }
     }
 }
+
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
