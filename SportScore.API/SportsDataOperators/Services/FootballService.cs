@@ -79,32 +79,40 @@ namespace SportScore.API.SportsDataOperators.Services
                     { ParamConstants.MatchId, id }
                 });
 
-            var data = JsonConvert.DeserializeObject<RawDataDTO>(rawData).Result[0];
-
-            string[] dateParts = ((string)data["event_date"]).Split("-");
-
-            string formattedDate = $"{dateParts[2]}.{dateParts[1]}.{dateParts[0]}";
-
-            var details = await GetDetails(data);
-            var stats = await GetStats(data);
-            var lineups = await GetLineups(data);
-
-            return new MatchDetailsDTO()
+            try
             {
-                LeagueId = (string)data["league_key"],
-                League = (string)data["league_name"],
-                HomeTeam = (string)data["event_home_team"],
-                HomeTeamLogo = (string)data["home_team_logo"],
-                AwayTeam = (string)data["event_away_team"],
-                AwayTeamLogo = (string)data["away_team_logo"],
-                Result = (string)data["event_final_result"],
-                Time = (string)data["event_status"],
-                StartDateAndTime = $"{formattedDate}, {(string)data["event_time"]}",
-                Country = (string)data["country_name"],
-                Details = details,
-                Statistics = stats,
-                Lineups = lineups
-            };
+                var data = JsonConvert.DeserializeObject<RawDataDTO>(rawData).Result[0];
+
+                string[] dateParts = ((string)data["event_date"]).Split("-");
+
+                string formattedDate = $"{dateParts[2]}.{dateParts[1]}.{dateParts[0]}";
+
+                var details = await GetDetails(data);
+                var stats = await GetStats(data);
+                var lineups = await GetLineups(data);
+
+                return new MatchDetailsDTO()
+                {
+                    LeagueId = (string)data["league_key"],
+                    League = (string)data["league_name"],
+                    HomeTeam = (string)data["event_home_team"],
+                    HomeTeamLogo = (string)data["home_team_logo"],
+                    AwayTeam = (string)data["event_away_team"],
+                    AwayTeamLogo = (string)data["away_team_logo"],
+                    Result = (string)data["event_final_result"],
+                    Time = (string)data["event_status"],
+                    StartDateAndTime = $"{formattedDate}, {(string)data["event_time"]}",
+                    Country = (string)data["country_name"],
+                    Details = details,
+                    Statistics = stats,
+                    Lineups = lineups
+                };
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+
         }
 
         public async Task<LeagueDetailsDTO> GetLeagueDetails(string id)
@@ -119,43 +127,51 @@ namespace SportScore.API.SportsDataOperators.Services
 
             var leagueData = leagues.FirstOrDefault(e => (string)e["league_key"] == id);
 
-            string name = (string)leagueData["league_name"];
-            string image = (string)leagueData["league_logo"];
-            string countryId = (string)leagueData["country_key"];
-            string countryName = (string)leagueData["country_name"];
+            try
+            {
+                string name = (string)leagueData["league_name"];
+                string image = (string)leagueData["league_logo"];
+                string countryId = (string)leagueData["country_key"];
+                string countryName = (string)leagueData["country_name"];
 
-            var standingsRaw = await sdService.Get(UrlConstants.FootballUrl,
-                new Dictionary<string, string>()
-                {
+                var standingsRaw = await sdService.Get(UrlConstants.FootballUrl,
+                    new Dictionary<string, string>()
+                    {
                     { ParamConstants.Met, MetConstants.Standings },
                     { ParamConstants.LeagueId, id }
-                });
+                    });
 
-            var standingsData = JsonConvert.DeserializeObject<AllStandingsRawDTO>(standingsRaw);
+                var standingsData = JsonConvert.DeserializeObject<AllStandingsRawDTO>(standingsRaw);
 
-            List<TeamInStandingDTO> standings = await GetStandings(standingsData.Result.Total);
+                List<TeamInStandingDTO> standings = await GetStandings(standingsData.Result.Total);
 
-            var topscorersRaw = await sdService.Get(UrlConstants.FootballUrl,
-                new Dictionary<string, string>()
-                {
+                var topscorersRaw = await sdService.Get(UrlConstants.FootballUrl,
+                    new Dictionary<string, string>()
+                    {
                     { ParamConstants.Met, MetConstants.Topscorers },
                     { ParamConstants.LeagueId, id }
-                });
+                    });
 
-            var topscorersData = JsonConvert.DeserializeObject<RawDataDTO>(topscorersRaw);
+                var topscorersData = JsonConvert.DeserializeObject<RawDataDTO>(topscorersRaw);
 
-            List<PlayerInTopScorersDTO> topscorers = await GetTopscorers(topscorersData.Result);
+                List<PlayerInTopScorersDTO> topscorers = await GetTopscorers(topscorersData.Result);
 
-            return new LeagueDetailsDTO()
+                return new LeagueDetailsDTO()
+                {
+                    LeagueId = id,
+                    LeagueName = name,
+                    LeagueImage = image,
+                    CountryId = countryId,
+                    CountryName = countryName,
+                    Standings = standings,
+                    TopScorers = topscorers
+                };
+            }
+            catch (Exception)
             {
-                LeagueId = id,
-                LeagueName = name,
-                LeagueImage = image,
-                CountryId = countryId,
-                CountryName = countryName,
-                Standings = standings,
-                TopScorers = topscorers
-            };
+                return null;
+            }
+
         }
 
         public async Task<TeamDetailsDTO> GetTeamDetails(string id)
@@ -167,26 +183,33 @@ namespace SportScore.API.SportsDataOperators.Services
                     { ParamConstants.TeamId, id }
                 });
 
-            var teamDetails = JsonConvert.DeserializeObject<RawDataDTO>(rawData).Result[0];
-
-            var players = await GetPlayers(JsonConvert.DeserializeObject<List<Dictionary<string, object>>>(teamDetails["players"].ToString()));
-
-            var date = DateTime.Now;
-
-            var matches = await Fixtures(from: $"{date.Year}-{date.Month-3}-01", to: $"{date.Year}-{date.Month-3}-{DateTime.DaysInMonth(date.Year, date.Month)}", teamId: id);
-
-            var coaches = JsonConvert.DeserializeObject<List<Dictionary<string, string>>>(teamDetails["coaches"].ToString())
-                .Select(c => c["coach_name"])
-                .ToList();
-
-            return new TeamDetailsDTO()
+            try
             {
-                Name = (string)teamDetails["team_name"],
-                Image = (string)teamDetails["team_logo"],
-                Matches = matches,
-                Players = players,
-                Coaches = coaches
-            };
+                var teamDetails = JsonConvert.DeserializeObject<RawDataDTO>(rawData).Result[0];
+
+                var players = await GetPlayers(JsonConvert.DeserializeObject<List<Dictionary<string, object>>>(teamDetails["players"].ToString()));
+
+                var date = DateTime.Now;
+
+                var matches = await Fixtures(from: $"{date.Year}-{date.Month - 3}-01", to: $"{date.Year}-{date.Month - 3}-{DateTime.DaysInMonth(date.Year, date.Month)}", teamId: id);
+
+                var coaches = JsonConvert.DeserializeObject<List<Dictionary<string, string>>>(teamDetails["coaches"].ToString())
+                    .Select(c => c["coach_name"])
+                    .ToList();
+
+                return new TeamDetailsDTO()
+                {
+                    Name = (string)teamDetails["team_name"],
+                    Image = (string)teamDetails["team_logo"],
+                    Matches = matches,
+                    Players = players,
+                    Coaches = coaches
+                };
+            }
+            catch (Exception)
+            {
+                return null;
+            }
         }
 
         //-- Help methods --//
@@ -333,47 +356,55 @@ namespace SportScore.API.SportsDataOperators.Services
 
             string rawData = await sdService.Get(UrlConstants.FootballUrl, parameters);
 
-            var data = JsonConvert.DeserializeObject<RawDataDTO>(rawData);
-
-            List<FixtureDTO> result = new List<FixtureDTO>();
-
-            if(data.Result != null)
+            try
             {
-                foreach (var match in data.Result)
+                var data = JsonConvert.DeserializeObject<RawDataDTO>(rawData);
+
+                List<FixtureDTO> result = new List<FixtureDTO>();
+
+                if (data.Result != null)
                 {
-                    var decisiveMatch = result.FirstOrDefault(e => e.League == (string)match["league_name"]);
+                    foreach (var match in data.Result)
+                    {
+                        var decisiveMatch = result.FirstOrDefault(e => e.League == (string)match["league_name"]);
 
-                    MatchDTO matchObject = new MatchDTO()
-                    {
-                        MatchId = (string)match["event_key"],
-                        StartTime = (string)match["event_time"],
-                        Time = (string)match["event_status"],
-                        HomeTeam = (string)match["event_home_team"],
-                        HomeGoals = ((string)match["event_final_result"]) != ""
-                            ? ((string)match["event_final_result"]).Split(" - ")[0]
-                            : "",
-                        AwayTeam = (string)match["event_away_team"],
-                        AwayGoals = ((string)match["event_final_result"]) != ""
-                            ? ((string)match["event_final_result"]).Split(" - ")[0]
-                            : ""
-                    };
-
-                    if (decisiveMatch != null)
-                    {
-                        decisiveMatch.Matches.Add(matchObject);
-                    }
-                    else
-                    {
-                        result.Add(new FixtureDTO()
+                        MatchDTO matchObject = new MatchDTO()
                         {
-                            League = (string)match["league_name"],
-                            Matches = new List<MatchDTO> { matchObject }
-                        });
+                            MatchId = (string)match["event_key"],
+                            StartTime = (string)match["event_time"],
+                            Time = (string)match["event_status"],
+                            HomeTeam = (string)match["event_home_team"],
+                            HomeGoals = ((string)match["event_final_result"]) != ""
+                                ? ((string)match["event_final_result"]).Split(" - ")[0]
+                                : "",
+                            AwayTeam = (string)match["event_away_team"],
+                            AwayGoals = ((string)match["event_final_result"]) != ""
+                                ? ((string)match["event_final_result"]).Split(" - ")[0]
+                                : ""
+                        };
+
+                        if (decisiveMatch != null)
+                        {
+                            decisiveMatch.Matches.Add(matchObject);
+                        }
+                        else
+                        {
+                            result.Add(new FixtureDTO()
+                            {
+                                League = (string)match["league_name"],
+                                Matches = new List<MatchDTO> { matchObject }
+                            });
+                        }
                     }
                 }
+
+                return result;
+            }
+            catch (Exception)
+            {
+                return null;
             }
 
-            return result;
         }
     }
 }

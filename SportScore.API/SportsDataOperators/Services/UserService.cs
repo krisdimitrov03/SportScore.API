@@ -45,7 +45,7 @@ namespace SportScore.API.SportsDataOperators.Services
                     .FirstOrDefault(u => u.UserName == user.Email).Id,
 
                     Username = user.Email
-                }, "");
+                }, string.Empty);
             }
             else return (null, "Wrong username or password.");
         }
@@ -63,7 +63,7 @@ namespace SportScore.API.SportsDataOperators.Services
 
             var errors = result.Errors.Select(e => e.Description).ToList();
 
-            if (result.Succeeded) return (new AuthReturnDTO() { Id = user.Id, Username = user.UserName }, "");
+            if (result.Succeeded) return (new AuthReturnDTO() { Id = user.Id, Username = user.UserName }, string.Empty);
             else return (null, string.Join(";", errors));
         }
 

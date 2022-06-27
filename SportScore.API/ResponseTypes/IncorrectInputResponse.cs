@@ -3,7 +3,7 @@
     public class IncorrectInputResponse : Response
     {
         public IncorrectInputResponse() 
-            : base(0, "Ivalid request!", null)
+            : base(0, "Ivalid input!", null)
         {
         }
     }
