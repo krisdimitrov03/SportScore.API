@@ -1,10 +1,14 @@
 [
   {
+    "firstName": "Petar",
+    "lastName": "Oborev",
+    "profileImage": "https://www.business2community.com/wp-content/uploads/2017/08/blank-profile-picture-973460_640.png",
     "userName": "petar-oborev@gmail.com",
     "normalizedUserName": "PETAR-OBOREV@GMAIL.COM",
     "email": "petar-oborev@gmail.com",
     "normalizedEmail": "PETAR-OBOREV@GMAIL.COM",
     "passwordHash": "AQAAAAEAACcQAAAAEDhFQxeskfGnKXAxDmttigAIoMz6vaWZVJf2VRNYLrUaPzZmCDmvAeYTg1vTTNI/Hg==",
+    "accessToken": "df2873bc-142b-4527-b186-7e12cee901b4",
     "lockoutEnabled": true
   }
 ]

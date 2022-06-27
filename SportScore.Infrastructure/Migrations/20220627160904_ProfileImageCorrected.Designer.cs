@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SportScore.Infrastructure;
 
@@ -11,9 +12,10 @@ using SportScore.Infrastructure;
 namespace SportScore.Infrastructure.Migrations
 {
     [DbContext(typeof(SportScoreContext))]
-    partial class SportScoreContextModelSnapshot : ModelSnapshot
+    [Migration("20220627160904_ProfileImageCorrected")]
+    partial class ProfileImageCorrected
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

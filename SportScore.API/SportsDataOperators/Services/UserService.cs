@@ -34,17 +34,23 @@ namespace SportScore.API.SportsDataOperators.Services
         {
             var user = await FormatInfo<LoginDTO>(body);
 
+            if (user == null) return (null, "Data formatted incorrectly.");
+
             var result = await signInManager.PasswordSignInAsync(user.Email, user.Password, user.RememberMe, lockoutOnFailure: false);
 
             if (result.Succeeded)
             {
+                var userFromDB = repo
+                    .All<ApplicationUser>()
+                    .Where(u => u.UserName == user.Email)
+                    .Select(u => new { u.Id, u.AccessToken })
+                    .FirstOrDefault();
+
                 return (new AuthReturnDTO()
                 {
-                    Id = repo
-                    .All<ApplicationUser>()
-                    .FirstOrDefault(u => u.UserName == user.Email).Id,
-
-                    Username = user.Email
+                    Id = userFromDB.Id,
+                    Username = user.Email,
+                    AccessToken = userFromDB.AccessToken
                 }, string.Empty);
             }
             else return (null, "Wrong username or password.");
@@ -54,37 +60,77 @@ namespace SportScore.API.SportsDataOperators.Services
         {
             var data = await FormatInfo<RegisterDTO>(body);
 
+            if (data == null) return (null, "Data formatted incorrectly.");
+
+            var errors = new List<string>();
+
             var user = Activator.CreateInstance<ApplicationUser>();
 
             await userStore.SetUserNameAsync(user, data.Email, CancellationToken.None);
             await emailStore.SetEmailAsync(user, data.Email, CancellationToken.None);
 
-            var result = await userManager.CreateAsync(user, data.Password);
+            try
+            {
+                user.FirstName = data.FirstName != null
+                    ? data.FirstName
+                    : throw new InvalidOperationException("FirstName cannot be null!");
 
-            var errors = result.Errors.Select(e => e.Description).ToList();
+                user.LastName = data.LastName != null
+                    ? data.LastName
+                    : throw new InvalidOperationException("LastName cannot be null!");
 
-            if (result.Succeeded) return (new AuthReturnDTO() { Id = user.Id, Username = user.UserName }, string.Empty);
-            else return (null, string.Join(";", errors));
+                user.AccessToken = Guid.NewGuid().ToString();
+
+                user.ProfileImage = data.ProfileImage == null
+                    ? "https://www.business2community.com/wp-content/uploads/2017/08/blank-profile-picture-973460_640.png"
+                    : data.ProfileImage;
+
+                var result = await userManager.CreateAsync(user, data.Password);
+
+                errors.AddRange(result.Errors.Select(e => e.Description).ToList());
+
+                if (result.Succeeded) return (new AuthReturnDTO() { Id = user.Id, Username = user.UserName, AccessToken = user.AccessToken }, string.Empty);
+                else return (null, string.Join(";", errors));
+            }
+            catch (Exception ex)
+            {
+                return (null, ex.Message);
+            }
         }
 
         public async Task<UserDetailsDTO> GetUserDetails(string id)
         {
             var user = await userManager.FindByIdAsync(id);
 
-            if(user == null) return null;
+            if (user == null) return null;
 
             return new UserDetailsDTO()
             {
                 Id = user.Id,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                ProfileImage = user.ProfileImage,
                 Email = user.Email,
-                Username = user.UserName,
-                ProfilePicture = "default-image-url.jpg"
+                Username = user.UserName
             };
+        }
+
+        public async Task<UserInNavDTO?> GetUserById(string id)
+        {
+            return repo.All<ApplicationUser>()
+                .Where(user => user.Id == id)
+                .Select(user => new UserInNavDTO()
+                {
+                    Id = user.Id,
+                    FirstName = user.FirstName,
+                    ProfileImage = user.ProfileImage
+                }).FirstOrDefault();
         }
 
         //-- Help Methods --//
 
-        private async Task<T> FormatInfo<T>(Stream body)
+        private async Task<T?> FormatInfo<T>(Stream body)
+            where T : class
         {
             string bodyAsString = string.Empty;
 
@@ -93,7 +139,14 @@ namespace SportScore.API.SportsDataOperators.Services
                 bodyAsString = await reader.ReadToEndAsync();
             }
 
-            return JsonConvert.DeserializeObject<T>(bodyAsString);
+            try
+            {
+                return JsonConvert.DeserializeObject<T>(bodyAsString);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
         }
 
         private IUserEmailStore<ApplicationUser> GetEmailStore()

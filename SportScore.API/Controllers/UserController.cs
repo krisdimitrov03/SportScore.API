@@ -31,5 +31,12 @@ namespace SportScore.API.Controllers
         {
             return await ValidateAccess((await service.GetUserDetails(id), string.Empty), "details");
         }
+
+        [HttpGet]
+        [Route("{id}")]
+        public async Task<Response> ForNav(string id)
+        {
+            return await ValidateAccess((await service.GetUserById(id), string.Empty), "forNav");
+        }
     }
 }
