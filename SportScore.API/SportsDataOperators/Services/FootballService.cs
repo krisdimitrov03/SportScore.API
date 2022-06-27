@@ -58,6 +58,7 @@ namespace SportScore.API.SportsDataOperators.Services
                 {
                     result.Add(new LeaguesByCountryDTO()
                     {
+                        CountryId = (string)league["country_key"],
                         CountryLogo = (string)league["country_logo"],
                         Country = (string)league["country_name"],
                         Leagues = new List<LeagueDTO> { leagueObject }
@@ -255,6 +256,7 @@ namespace SportScore.API.SportsDataOperators.Services
         {
             return data.Select(p => new PlayerDTO()
             {
+                Id = p["player_key"].ToString(),
                 Name = (string)p["player_name"],
                 Image = (string)p["player_image"],
                 Position = (string)p["player_type"]
@@ -306,6 +308,7 @@ namespace SportScore.API.SportsDataOperators.Services
             {
                 result.StartingEleven.Add(new PlayerInLineupDTO()
                 {
+                    Id = player["player_key"],
                     Name = player["player"],
                     Number = player["player_number"],
                     Position = player["player_position"]
@@ -316,6 +319,7 @@ namespace SportScore.API.SportsDataOperators.Services
             {
                 result.Substitutes.Add(new PlayerInLineupDTO()
                 {
+                    Id = player["player_key"],
                     Name = player["player"],
                     Number = player["player_number"],
                     Position = player["player_position"]
@@ -331,6 +335,7 @@ namespace SportScore.API.SportsDataOperators.Services
             {
                 result.MissingPlayers.Add(new PlayerInLineupDTO()
                 {
+                    Id = player["player_key"],
                     Name = player["player"],
                     Number = player["player_number"],
                     Position = player["player_position"]
@@ -342,7 +347,14 @@ namespace SportScore.API.SportsDataOperators.Services
 
         private async Task<List<StatDTO>> GetStats(Dictionary<string, object> data)
         {
-            return JsonConvert.DeserializeObject<List<StatDTO>>(data["statistics"].ToString());
+            var result = JsonConvert.DeserializeObject<List<StatDTO>>(data["statistics"].ToString());
+
+            result.ForEach(s =>
+            {
+                s.Id = result.IndexOf(s);
+            });
+
+            return result;
         }
 
         private async Task<List<MiniEventDTO>> GetDetails(Dictionary<string, object> data)
@@ -353,6 +365,7 @@ namespace SportScore.API.SportsDataOperators.Services
             List<MiniEventDTO> details = new List<MiniEventDTO>();
 
             var goalscorers = goalscorersData.Select(e => new MiniEventDTO(
+                goalscorersData.ToList().IndexOf(e) + 1,
                 e["time"].EndsWith("+") ? e["time"].Replace("+", "") : e["time"],
                 "goal",
                 e["home_scorer"] != "" ? "home" : "away",
@@ -361,6 +374,7 @@ namespace SportScore.API.SportsDataOperators.Services
                 .ToList();
 
             var cards = cardsData.Select(e => new MiniEventDTO(
+                goalscorersData.ToList().IndexOf(e) + 1,
                 e["time"],
                 e["card"],
                 e["home_fault"] != "" ? "home" : "away",
@@ -430,6 +444,7 @@ namespace SportScore.API.SportsDataOperators.Services
                         {
                             result.Add(new FixtureDTO()
                             {
+                                Id = (string)match["league_key"],
                                 League = (string)match["league_name"],
                                 Matches = new List<MatchDTO> { matchObject }
                             });

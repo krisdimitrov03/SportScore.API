@@ -2,14 +2,17 @@
 {
     public class MiniEventDTO
     {
-        public MiniEventDTO(string time, string type, string side, string playerName, string? result = null)
+        public MiniEventDTO(int id, string time, string type, string side, string playerName, string? result = null)
         {
+            Id = id;
             Time = time;
             Type = type;
             Side = side;
             PlayerName = playerName;
             Result = result;
         }
+
+        public int Id { get; set; }
 
         public string Time { get; set; }
 

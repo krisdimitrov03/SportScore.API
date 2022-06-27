@@ -4,6 +4,8 @@ namespace SportScore.API.DataTransferModels
 {
     public class FixtureDTO
     {
+        public string Id { get; set; }
+
         public FixtureDTO()
         {
             Matches = new List<MatchDTO>();

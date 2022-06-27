@@ -7,6 +7,8 @@
             Leagues = new List<LeagueDTO>();
         }
 
+        public string CountryId { get; set; }
+
         public string CountryLogo { get; set; }
         
         public string Country { get; set; }
