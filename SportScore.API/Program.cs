@@ -8,6 +8,7 @@ using SportScore.Infrastructure.Data;
 using SportScore.Infrastructure;
 using SportScore.Infrastructure.Seeders;
 using SportScore.Infrastructure.Data.Repositories;
+using Microsoft.AspNetCore.Authentication;
 
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("SportScoreContextConnection") ?? throw new InvalidOperationException("Connection string 'SportScoreContextConnection' not found.");

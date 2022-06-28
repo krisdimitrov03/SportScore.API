@@ -1,0 +1,17 @@
+{
+  "dependencies": {
+    "mssql1": {
+      "secretStore": "AzureAppSettings",
+      "type": "mssql.onprem",
+      "connectionId": "ConnectionStrings:SportScoreContextConnection"
+    },
+    "identityapp1": {
+      "type": "identityapp.aad"
+    },
+    "apis1": {
+      "apiEndpoint": "https://sportscoreapiapi.azure-api.net/",
+      "resourceId": "/subscriptions/[parameters('subscriptionId')]/resourceGroups/[parameters('resourceGroupName')]/providers/Microsoft.ApiManagement/service/SportScoreAPIapi/apis/SportScoreAPI",
+      "type": "apis.azure"
+    }
+  }
+}

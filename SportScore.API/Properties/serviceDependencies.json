@@ -3,6 +3,12 @@
     "mssql1": {
       "type": "mssql",
       "connectionId": "ConnectionStrings:SportScoreContextConnection"
+    },
+    "identityapp1": {
+      "type": "identityapp"
+    },
+    "apis1": {
+      "type": "apis"
     }
   }
 }
