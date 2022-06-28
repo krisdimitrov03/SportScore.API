@@ -9,8 +9,13 @@ using SportScore.Infrastructure;
 using SportScore.Infrastructure.Seeders;
 using SportScore.Infrastructure.Data.Repositories;
 using Microsoft.AspNetCore.Authentication;
+using Azure.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
+
+//var keyVaultEndpoint = new Uri(Environment.GetEnvironmentVariable("VaultUri"));
+var keyVaultEndpoint = new Uri("https://sportscoreapivault.vault.azure.net/");
+builder.Configuration.AddAzureKeyVault(keyVaultEndpoint, new DefaultAzureCredential());
 var connectionString = builder.Configuration.GetConnectionString("SportScoreContextConnection") ?? throw new InvalidOperationException("Connection string 'SportScoreContextConnection' not found.");
 
 builder.Services.AddDbContext<SportScoreContext>(options =>
@@ -58,8 +63,8 @@ app.UseCors("SportScore");
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    //app.UseSwagger();
-    //app.UseSwaggerUI();
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
 
 app.UseHttpsRedirection();

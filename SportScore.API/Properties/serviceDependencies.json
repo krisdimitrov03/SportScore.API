@@ -1,5 +1,8 @@
 {
   "dependencies": {
+    "apis1": {
+      "type": "apis"
+    },
     "mssql1": {
       "type": "mssql",
       "connectionId": "ConnectionStrings:SportScoreContextConnection"
@@ -7,8 +10,9 @@
     "identityapp1": {
       "type": "identityapp"
     },
-    "apis1": {
-      "type": "apis"
+    "secrets1": {
+      "type": "secrets",
+      "connectionId": "VaultUri"
     }
   }
 }

@@ -1,0 +1,22 @@
+{
+  "dependencies": {
+    "apis1": {
+      "resourceId": "/subscriptions/[parameters('subscriptionId')]/resourceGroups/[parameters('resourceGroupName')]/providers/Microsoft.ApiManagement/service/SportScoreBackendApi/apis/SportScoreAPI",
+      "type": "apis.azure"
+    },
+    "mssql1": {
+      "secretStore": "AzureAppSettings",
+      "type": "mssql.onprem",
+      "connectionId": "ConnectionStrings:SportScoreContextConnection"
+    },
+    "identityapp1": {
+      "type": "identityapp.aad"
+    },
+    "secrets1": {
+      "secretStore": "AzureAppSettings",
+      "resourceId": "/subscriptions/[parameters('subscriptionId')]/resourceGroups/[parameters('resourceGroupName')]/providers/Microsoft.KeyVault/vaults/SportScoreAPIvault",
+      "type": "secrets.keyVault",
+      "connectionId": "VaultUri"
+    }
+  }
+}
