@@ -7,6 +7,6 @@
         public const string FootballUrl = $"{BaseUrl}/football";
 
         //public static string APIKey = Environment.GetEnvironmentVariable("API_KEY");
-        public static string APIKey = "cf5276dbf901fbbc606899b7dc52341bd04f00c3f5ec4fb68385c78ee61d832f";
+        public static string APIKey = "589a4537760853a80ece7dbeb56048577c2d7000ab02af1311120d368fe85731";
     }
 }

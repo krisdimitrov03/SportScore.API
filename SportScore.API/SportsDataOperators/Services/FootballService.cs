@@ -445,6 +445,7 @@ namespace SportScore.API.SportsDataOperators.Services
                             result.Add(new FixtureDTO()
                             {
                                 Id = (string)match["league_key"],
+                                Image = (string)match["country_logo"],
                                 League = (string)match["league_name"],
                                 Matches = new List<MatchDTO> { matchObject }
                             });

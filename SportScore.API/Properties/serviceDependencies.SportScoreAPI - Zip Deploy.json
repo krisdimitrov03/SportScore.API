@@ -12,6 +12,12 @@
       "apiEndpoint": "https://sportscoreapiapi.azure-api.net/",
       "resourceId": "/subscriptions/[parameters('subscriptionId')]/resourceGroups/[parameters('resourceGroupName')]/providers/Microsoft.ApiManagement/service/SportScoreAPIapi/apis/SportScoreAPI",
       "type": "apis.azure"
+    },
+    "secrets1": {
+      "secretStore": "AzureAppSettings",
+      "resourceId": "/subscriptions/[parameters('subscriptionId')]/resourceGroups/[parameters('resourceGroupName')]/providers/Microsoft.KeyVault/vaults/SportScoreAPIvault",
+      "type": "secrets.keyVault",
+      "connectionId": "VaultUri"
     }
   }
 }

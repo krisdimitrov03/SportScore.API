@@ -3,16 +3,16 @@
     "apis1": {
       "type": "apis"
     },
-    "mssql1": {
-      "type": "mssql",
-      "connectionId": "ConnectionStrings:SportScoreContextConnection"
-    },
     "identityapp1": {
       "type": "identityapp"
     },
     "secrets1": {
       "type": "secrets",
       "connectionId": "VaultUri"
+    },
+    "mssql1": {
+      "type": "mssql",
+      "connectionId": "ConnectionStrings:SportScoreContextConnection"
     }
   }
 }
