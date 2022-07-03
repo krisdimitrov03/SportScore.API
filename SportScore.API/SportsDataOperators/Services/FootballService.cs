@@ -134,6 +134,7 @@ namespace SportScore.API.SportsDataOperators.Services
                 string image = (string)leagueData["league_logo"];
                 string countryId = (string)leagueData["country_key"];
                 string countryName = (string)leagueData["country_name"];
+                string countryImage = (string)leagueData["country_logo"];
 
                 var standingsRaw = await sdService.Get(UrlConstants.FootballUrl,
                     new Dictionary<string, string>()
@@ -142,9 +143,16 @@ namespace SportScore.API.SportsDataOperators.Services
                     { ParamConstants.LeagueId, id }
                     });
 
-                var standingsData = JsonConvert.DeserializeObject<AllStandingsRawDTO>(standingsRaw);
+                var standings = new List<TeamInStandingDTO>();
 
-                List<TeamInStandingDTO> standings = await GetStandings(standingsData.Result.Total);
+                try
+                {
+                    var standingsData = JsonConvert.DeserializeObject<AllStandingsRawDTO>(standingsRaw);
+                    standings = await GetStandings(standingsData.Result.Total);
+                }
+                catch (Exception)
+                {
+                }
 
                 var topscorersRaw = await sdService.Get(UrlConstants.FootballUrl,
                     new Dictionary<string, string>()
@@ -153,9 +161,16 @@ namespace SportScore.API.SportsDataOperators.Services
                     { ParamConstants.LeagueId, id }
                     });
 
-                var topscorersData = JsonConvert.DeserializeObject<RawDataDTO>(topscorersRaw);
+                var topscorers = new List<PlayerInTopScorersDTO>();
 
-                List<PlayerInTopScorersDTO> topscorers = await GetTopscorers(topscorersData.Result);
+                try
+                {
+                    var topscorersData = JsonConvert.DeserializeObject<RawDataDTO>(topscorersRaw);
+                    topscorers = await GetTopscorers(topscorersData.Result);
+                }
+                catch (Exception)
+                {
+                }
 
                 return new LeagueDetailsDTO()
                 {
@@ -164,6 +179,7 @@ namespace SportScore.API.SportsDataOperators.Services
                     LeagueImage = image,
                     CountryId = countryId,
                     CountryName = countryName,
+                    CountryImage = countryImage,
                     Standings = standings,
                     TopScorers = topscorers
                 };
@@ -267,6 +283,7 @@ namespace SportScore.API.SportsDataOperators.Services
         {
             return data.Select(t => new TeamInStandingDTO()
             {
+                Id = t["team_key"],
                 Number = int.Parse(t["standing_place"]),
                 Name = t["standing_team"],
                 GamesPlayed = t["standing_P"] == null ? 0 : int.Parse(t["standing_P"]),
@@ -427,13 +444,17 @@ namespace SportScore.API.SportsDataOperators.Services
                             StartTime = (string)match["event_time"],
                             Time = (string)match["event_status"],
                             HomeTeam = (string)match["event_home_team"],
-                            HomeGoals = ((string)match["event_final_result"]) != ""
+                            HomeGoals = 
+                            ((string)match["event_final_result"]) != "" &&
+                            ((string)match["event_final_result"]).Split(" - ").Length == 2
                                 ? ((string)match["event_final_result"]).Split(" - ")[0]
-                                : "",
+                                : "-",
                             AwayTeam = (string)match["event_away_team"],
-                            AwayGoals = ((string)match["event_final_result"]) != ""
-                                ? ((string)match["event_final_result"]).Split(" - ")[0]
-                                : ""
+                            AwayGoals = 
+                            ((string)match["event_final_result"]) != "" &&
+                            ((string)match["event_final_result"]).Split(" - ").Length == 2
+                                ? ((string)match["event_final_result"]).Split(" - ")[1]
+                                : "-"
                         };
 
                         if (decisiveMatch != null)
@@ -455,7 +476,7 @@ namespace SportScore.API.SportsDataOperators.Services
 
                 return result;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 return null;
             }

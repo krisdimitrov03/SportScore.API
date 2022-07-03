@@ -27,10 +27,10 @@
       "launchBrowser": true,
       "launchUrl": "swagger",
       "environmentVariables": {
+        "API_KEY": "cf5276dbf901fbbc606899b7dc52341bd04f00c3f5ec4fb68385c78ee61d832f",
         "ASPNETCORE_ENVIRONMENT": "Development",
         "ASPNETCORE_URLS": "https://localhost:7111;http://localhost:5111",
         "ACCESS_URL": "http://localhost:3000",
-        "API_KEY": "cf5276dbf901fbbc606899b7dc52341bd04f00c3f5ec4fb68385c78ee61d832f",
         "AUTH_TOKEN": "9dc97af7-5b7e-466b-9fc1-1ca2873bc4"
       }
     },

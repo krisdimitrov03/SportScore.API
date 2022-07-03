@@ -1,9 +1,13 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using SportScore.API.DataTransferModels;
 using SportScore.API.SportsDataOperators.Contracts;
 using SportScore.Infrastructure.Data;
 using SportScore.Infrastructure.Data.Repositories;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 
 #pragma warning disable CS8602 // Dereference of a possibly null reference.
 
@@ -17,22 +21,25 @@ namespace SportScore.API.SportsDataOperators.Services
         private readonly IUserEmailStore<ApplicationUser> emailStore;
         private readonly IApplicationDbRepository repo;
         private BodyParser parser;
+        private readonly IConfiguration config;
 
         public UserService(
             SignInManager<ApplicationUser> _signInManager,
             UserManager<ApplicationUser> _userManager,
             IUserStore<ApplicationUser> _userStore,
-            IApplicationDbRepository _repo)
+            IApplicationDbRepository _repo,
+            IConfiguration _config)
         {
             signInManager = _signInManager;
             userManager = _userManager;
             userStore = _userStore;
             emailStore = GetEmailStore();
             repo = _repo;
+            config = _config;
             parser = new BodyParser();
         }
 
-        public async Task<(AuthReturnDTO?, string)> LogUserIn(Stream body)
+        public async Task<(UserInNavDTO?, string)> LogUserIn(Stream body)
         {
             var user = await parser.Parse<LoginDTO>(body);
 
@@ -45,14 +52,14 @@ namespace SportScore.API.SportsDataOperators.Services
                 var userFromDB = repo
                     .All<ApplicationUser>()
                     .Where(u => u.UserName == user.Email)
-                    .Select(u => new { u.Id, u.AccessToken })
+                    .Select(u => new { u.Id, u.FirstName, u.ProfileImage })
                     .FirstOrDefault();
 
-                return (new AuthReturnDTO()
+                return (new UserInNavDTO()
                 {
                     Id = userFromDB.Id,
-                    Username = user.Email,
-                    AccessToken = userFromDB.AccessToken
+                    FirstName = userFromDB.FirstName,
+                    ProfileImage = userFromDB.ProfileImage,
                 }, string.Empty);
             }
             else return (null, "Wrong username or password.");
@@ -117,10 +124,10 @@ namespace SportScore.API.SportsDataOperators.Services
             };
         }
 
-        public async Task<UserInNavDTO?> GetUserById(string id)
+        public async Task<UserInNavDTO?> GetUserByAccessToken(string token)
         {
             return repo.All<ApplicationUser>()
-                .Where(user => user.Id == id)
+                .Where(user => user.AccessToken == token)
                 .Select(user => new UserInNavDTO()
                 {
                     Id = user.Id,
@@ -129,9 +136,30 @@ namespace SportScore.API.SportsDataOperators.Services
                 }).FirstOrDefault();
         }
 
+        public string GenerateToken(UserInNavDTO user)
+        {
+            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["Jwt:Key"]));
+            var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+
+            var claims = new[]
+            {
+                new Claim(ClaimTypes.SerialNumber, user.Id),
+                new Claim(ClaimTypes.GivenName, user.FirstName),
+                new Claim(ClaimTypes.Uri, user.ProfileImage)
+            };
+
+            var token = new JwtSecurityToken(config["Jwt:Issuer"],
+                config["Jwt:Audience"],
+                claims,
+                expires: DateTime.Now.AddDays(1),
+                signingCredentials: credentials);
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+
         //-- Help Methods --//
 
-        
+
 
         private IUserEmailStore<ApplicationUser> GetEmailStore()
         {

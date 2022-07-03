@@ -19,42 +19,42 @@ namespace SportScore.API.Controllers
         }
 
         [HttpGet]
-        public async Task<Response> Livescore()
+        public async Task<IActionResult> Livescore()
         {
-            return await ValidateAccess(await service.GetLivescore());
+            return Ok(await ValidateAccess(await service.GetLivescore()));
         }
 
         [HttpGet]
-        public async Task<Response> Fixtures(string from, string to)
+        public async Task<IActionResult> Fixtures(string from, string to)
         {
-            return await ValidateAccess(await service.GetFixturesByDate(from, to));
+            return Ok(await ValidateAccess(await service.GetFixturesByDate(from, to)));
         }
 
         [HttpGet]
-        public async Task<Response> Leagues()
+        public async Task<IActionResult> Leagues()
         {
-            return await ValidateAccess(await service.GetLeagues());
-        }
-
-        [HttpGet]
-        [Route("{id}")]
-        public async Task<Response> MatchDetails(string id)
-        {
-            return await ValidateAccess(await service.GetMatchDetails(id));
+            return Ok(await ValidateAccess(await service.GetLeagues()));
         }
 
         [HttpGet]
         [Route("{id}")]
-        public async Task<Response> LeagueDetails(string id)
+        public async Task<IActionResult> MatchDetails(string id)
         {
-            return await ValidateAccess(await service.GetLeagueDetails(id));
+            return Ok(await ValidateAccess(await service.GetMatchDetails(id)));
         }
 
         [HttpGet]
         [Route("{id}")]
-        public async Task<Response> TeamDetails(string id)
+        public async Task<IActionResult> LeagueDetails(string id)
         {
-            return await ValidateAccess(await service.GetTeamDetails(id));
+            return Ok(await ValidateAccess(await service.GetLeagueDetails(id)));
+        }
+
+        [HttpGet]
+        [Route("{id}")]
+        public async Task<IActionResult> TeamDetails(string id)
+        {
+            return Ok(await ValidateAccess(await service.GetTeamDetails(id)));
         }
     }
 }

@@ -18,6 +18,8 @@
 
         public string CountryName { get; set; }
 
+        public string CountryImage { get; set; }
+
         public List<TeamInStandingDTO> Standings { get; set; }
 
         public List<PlayerInTopScorersDTO> TopScorers { get; set; }

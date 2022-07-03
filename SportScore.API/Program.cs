@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.Identity.Web;
 using SportScore.API.SportsDataOperators.Contracts;
 using SportScore.API.SportsDataOperators.Services;
 using Microsoft.AspNetCore.Identity;
@@ -8,7 +7,6 @@ using SportScore.Infrastructure.Data;
 using SportScore.Infrastructure;
 using SportScore.Infrastructure.Seeders;
 using SportScore.Infrastructure.Data.Repositories;
-using Microsoft.AspNetCore.Authentication;
 using Azure.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -30,8 +28,21 @@ builder.Services.Configure<IdentityOptions>(options =>
 });
 
 // Add services to the container.
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddMicrosoftIdentityWebApi(builder.Configuration.GetSection("AzureAd"));
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme);
+    //.AddJwtBearer(options =>
+    //{
+    //    options.TokenValidationParameters = new TokenValidationParameters
+    //    {
+    //        ValidateIssuer = true,
+    //        ValidateAudience = true,
+    //        ValidateLifetime = true,
+    //        ValidateIssuerSigningKey = true,
+    //        ValidIssuer = builder.Configuration["Jwt:Issuer"],
+    //        ValidAudience = builder.Configuration["Jwt:Audience"],
+    //        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
+    //    };
+    //});
+    //.AddMicrosoftIdentityWebApi(builder.Configuration.GetSection("AzureAd"));
 
 builder.Services
     .AddScoped<IApplicationDbRepository, ApplicationDbRepository>()
